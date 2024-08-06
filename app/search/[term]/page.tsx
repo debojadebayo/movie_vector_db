@@ -12,11 +12,12 @@ async function SearchTerm({
     term: string;
   };
 }) {
-  const movies = db.collection("movies");
+  const movies = db.collection("movie_collection");
 
+
+    //function to find similar movies
   const similarMovies = (await movies
-    .find(
-      {},
+    .find({},
       {
         vectorize: term,
         limit: 10,
@@ -25,6 +26,8 @@ async function SearchTerm({
       }
     )
     .toArray()) as Movie[];
+
+    console.log(similarMovies)
 
   return (
     <div className="flex flex-col items-center justify-center p-20 pt-10">

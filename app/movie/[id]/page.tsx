@@ -14,8 +14,9 @@ async function MoviePage({
     id: string;
   };
 }) {
-  const movies = db.collection("movies");
+  const movies = db.collection("movie_collection");
 
+  //find method as part of database API to identify movie
   const search = await movies.find({ $and: [{ _id: id }] });
 
   if (!(await search.hasNext())) {
@@ -24,19 +25,26 @@ async function MoviePage({
 
   const movie = (await search.next()) as Movie;
 
-  const similarMovies = (await movies
-    .find(
-      {},
+  //checks movie vector
+  console.log(movie.$vector)
+
+  //find similar movies based on movie vector
+
+  const similarMovies = (await movies.find({},
       {
-        vector: movie.$vector,
-        limit: 6, // we will cut the first movie and want to show 5 similar movies
+        sort: {
+          $vector: movie.$vector
+        },
+        limit: 6, 
         includeSimilarity: true,
       }
     )
     .toArray()) as SimilarMovie[];
 
-  // cut the first movie because it is the same as the movie we are looking for
+ 
   similarMovies.shift();
+
+  console.log(similarMovies[0])
 
   return (
     <div>
@@ -55,8 +63,8 @@ async function MoviePage({
 
           <div className="mt-auto grid grid-cols-2">
             <div className="font-semibold">
-              <p>Directed by</p>
-              <p>Featuring</p>
+              <p>Directed by:</p>
+              <p>Featuring:</p>
               <p>Box Office:</p>
               <p>Released:</p>
               <p>Runtime:</p>
@@ -86,12 +94,13 @@ async function MoviePage({
         </h2>
         <div className="flex justify-between items-center lg:flex-row gap-x-20 gap-y-10 pl-20 pr-10 py-10 overflow-x-scroll">
           {similarMovies.map((movie, i) => (
-            <MoviePoster
-              key={movie._id}
-              index={i + 1}
-              similarityRating={Number(movie.$similarity.toFixed(2)) * 100}
-              movie={movie}
-            />
+            <div key={movie._id} className="flex space-x-2 relative">
+              <MoviePoster
+                index={i + 1}
+                // similarityRating={Number(movie.$similarity.toFixed(2)) * 100}
+                movie={movie}
+              />
+            </div>
           ))}
         </div>
       </div>

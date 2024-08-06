@@ -5,16 +5,14 @@ import { Movie } from "@/types";
 // refresh cache every 24 hours
 export const revalidate = 60 * 60 * 24;
 
-export default async function Home() {
-  const movies = db.collection("movies");
+//reaches out to vector database and imports movies
 
-  const allMovies = (await movies
-    .find(
+export default async function Home() {
+  const movies = db.collection("movie_collection");
+
+  const allMovies = (await movies.find(
       {},
-      {
-        // this is how you exclude out the vector fields from the results
-        // projection: { $vector: 0 },
-      }
+      {}
     )
     .toArray()) as Movie[];
 
@@ -29,7 +27,7 @@ export default async function Home() {
   );
 }
 
-// if you need to create custom embeddings, here is an example of how to do it...
+// create custom embeedings by directly interacting with OPEN API's text-embedding model 
 async function embedding(prompt: string) {
   const response = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
@@ -40,7 +38,7 @@ async function embedding(prompt: string) {
     body: JSON.stringify({
       input: prompt,
       model: "text-embedding-3-large",
-      dimensions: 512,
+      dimensions: 3072, // recommended dimensions as per API docs
     }),
   });
 

@@ -1,6 +1,8 @@
+
 import { HomeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
 
 function SearchInput() {
   async function searchAction(formData: FormData) {
@@ -23,7 +25,7 @@ function SearchInput() {
         type="text"
         className="flex-1 p-5 outline-none"
         name="searchTerm"
-        placeholder="What type of film do you like? e.g. Sci-Fi films in space..."
+        placeholder="What type of film do you like? e.g. Comedy films..."
       />
     </form>
   );

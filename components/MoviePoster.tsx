@@ -2,6 +2,8 @@ import { Movie, SimilarMovie } from "@/types";
 import Link from "next/link";
 import ImageWithFallback from "./ImageWithFallback";
 
+
+//creates the movie poster 
 function MoviePoster({
   index,
   similarityRating,
