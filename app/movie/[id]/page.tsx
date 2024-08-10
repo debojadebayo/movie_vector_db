@@ -1,6 +1,7 @@
 import MoviePoster from "@/components/MoviePoster";
 import db from "@/db";
 import { Movie, SimilarMovie } from "@/types";
+import { FindOptions } from "@datastax/astra-db-ts";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -17,7 +18,9 @@ async function MoviePage({
   const movies = db.collection("movie_collection");
 
   //find method as part of database API to identify movie
-  const search = await movies.find({ $and: [{ _id: id }] });
+  const search = await movies.find({ $and: [{ _id: id }] }, { projection: { $vector: 1 , _id: 1 } });
+
+  // console.log(search)
 
   if (!(await search.hasNext())) {
     return notFound();
@@ -26,25 +29,32 @@ async function MoviePage({
   const movie = (await search.next()) as Movie;
 
   //checks movie vector
-  console.log(movie.$vector)
+  console.log(movie)
+  // console.log(movie.$sim)
 
+const findOptions: FindOptions = {
+  vector: movie.$vector,
+  // projection: {
+  //     title: 1,
+  //     genre: 1,
+  //     $vector: 1,  
+  // },
+  limit: 6,
+  includeSimilarity: true
+};  
+ 
   //find similar movies based on movie vector
 
-  const similarMovies = (await movies.find({},
-      {
-        sort: {
-          $vector: movie.$vector
-        },
-        limit: 6, 
-        includeSimilarity: true,
-      }
+  const similarMovies = (await movies.find(
+    {},
+      findOptions
     )
     .toArray()) as SimilarMovie[];
 
  
   similarMovies.shift();
 
-  console.log(similarMovies[0])
+  console.log(similarMovies[1].Poster)
 
   return (
     <div>
@@ -97,7 +107,7 @@ async function MoviePage({
             <div key={movie._id} className="flex space-x-2 relative">
               <MoviePoster
                 index={i + 1}
-                // similarityRating={Number(movie.$similarity.toFixed(2)) * 100}
+                similarityRating={Number(movie.$similarity.toFixed(2)) * 100}
                 movie={movie}
               />
             </div>

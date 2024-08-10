@@ -8,7 +8,7 @@ export type Movie = {
   Genre: string;
   Director: string;
   $vectorize: string;
-  $vector: Array<number>;
+  $vector?: Array<number>;
   Writer: string;
   Actors: string;
   Language: string;
