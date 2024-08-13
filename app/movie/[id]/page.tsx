@@ -20,7 +20,6 @@ async function MoviePage({
   //find method as part of database API to identify movie
   const search = await movies.find({ $and: [{ _id: id }] }, { projection: { $vector: 1 , _id: 1 } });
 
-  // console.log(search)
 
   if (!(await search.hasNext())) {
     return notFound();
@@ -30,24 +29,16 @@ async function MoviePage({
 
   //checks movie vector
   console.log(movie)
-  // console.log(movie.$sim)
-
-const findOptions: FindOptions = {
-  vector: movie.$vector,
-  // projection: {
-  //     title: 1,
-  //     genre: 1,
-  //     $vector: 1,  
-  // },
-  limit: 6,
-  includeSimilarity: true
-};  
  
   //find similar movies based on movie vector
 
   const similarMovies = (await movies.find(
     {},
-      findOptions
+    {
+      vector: movie.$vector,
+      limit: 6,
+      includeSimilarity: true
+    }
     )
     .toArray()) as SimilarMovie[];
 
